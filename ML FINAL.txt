@@ -1,0 +1,686 @@
+1)ML Uber 
+
+#import libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import warnings 
+#We do not want to see warnings
+warnings.filterwarnings("ignore") 
+
+
+#import data
+data = pd.read_csv("uber.csv")
+
+
+#Create a data copy
+df = data.copy()
+
+
+#Print data
+df.head
+
+
+#Get Info
+df.info()AC
+
+
+#Statistics of data
+df.describe()
+
+
+#Number of missing values
+df.isnull().sum()
+
+
+#Correlation
+df.corr()
+
+
+#Drop the rows with missing values
+df.dropna(inplace=True)
+
+
+plt.boxplot(df['fare_amount'])
+
+
+#Remove Outliers
+q_low = df["fare_amount"].quantile(0.01)
+q_hi  = df["fare_amount"].quantile(0.99)
+
+df = df[(df["fare_amount"] < q_hi) & (df["fare_amount"] > q_low)]
+
+
+#Check the missing values now
+df.isnull().sum()
+
+
+#Time to apply learning models
+from sklearn.model_selection import train_test_split
+
+
+#Take x as predictor variable
+x = df.drop("fare_amount", axis = 1)
+#And y as target variable
+y = df['fare_amount']
+
+
+#Necessary to apply model
+x['pickup_datetime'] = pd.to_numeric(pd.to_datetime(x['pickup_datetime']))
+x = x.loc[:, x.columns.str.contains('^Unnamed')]
+
+
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state = 1)
+
+
+from sklearn.linear_model import LinearRegression
+
+
+lrmodel = LinearRegression()
+lrmodel.fit(x_train, y_train)
+
+
+#Prediction
+predict = lrmodel.predict(x_test)
+
+
+#Check Error
+from sklearn.metrics import mean_squared_error
+lrmodelrmse = np.sqrt(mean_squared_error(predict, y_test))
+print("RMSE error for the model is ", lrmodelrmse)
+
+
+
+#Let's Apply Random Forest Regressor
+from sklearn.ensemble import RandomForestRegressor
+rfrmodel = RandomForestRegressor(n_estimators = 100, random_state = 101)
+
+
+#Fit the Forest
+rfrmodel.fit(x_train, y_train)
+rfrmodel_pred = rfrmodel.predict(x_test)
+
+
+#Errors for the forest
+rfrmodel_rmse = np.sqrt(mean_squared_error(rfrmodel_pred, y_test))
+print("RMSE value for Random Forest is:",rfrmodel_rmse)
+
+----------------------------------------
+
+The provided code is a basic machine learning example using a dataset of Uber ride fares to predict fare amounts. Here's a breakdown of what the code does:
+
+1. **Data Import and Preprocessing**:
+   - It starts by importing necessary libraries and reading the Uber dataset from a CSV file into a Pandas DataFrame.
+   - A copy of the original DataFrame is created as `df`.
+   - The code checks for missing values in the dataset and handles outliers in the "fare_amount" column by removing values below the 1st percentile and above the 99th percentile.
+
+2. **Data Exploration**:
+   - The code prints information about the dataset, including data types and non-null counts.
+   - It provides summary statistics for the dataset.
+   - It calculates the correlation between numerical features.
+
+3. **Data Splitting**:
+   - The dataset is split into predictor variables (features) denoted as `x` and the target variable "fare_amount" denoted as `y`.
+   - The "pickup_datetime" column is converted to a numeric format, which is often necessary for machine learning models.
+   - Columns with names containing "Unnamed" are removed from the predictor variables.
+
+4. **Model Building**:
+   - The code proceeds to split the data into training and testing sets using `train_test_split` from `sklearn.model_selection`.
+   - It builds a linear regression model (`lrmodel`) using `LinearRegression` from `sklearn.linear_model` and fits the model with the training data.
+   - It makes predictions on the test data using the linear regression model.
+
+5. **Model Evaluation**:
+   - Model performance is evaluated by calculating the root mean squared error (RMSE) using `mean_squared_error` from `sklearn.metrics`. The RMSE is a measure of the model's prediction accuracy.
+   - The RMSE value for the linear regression model is printed to assess its performance.
+
+6. **Random Forest Model**:
+   - The code also demonstrates using a random forest regressor (`RandomForestRegressor`) from `sklearn.ensemble`.
+   - It fits the random forest model (`rfrmodel`) with the training data and makes predictions.
+   - The RMSE for the random forest model is calculated and printed to compare its performance with the linear regression model.
+
+7. **Output**:
+   - The code prints the RMSE values for both the linear regression and random forest models, providing a measure of how well they predict Uber ride fares.
+
+This code serves as a basic introduction to machine learning in Python, covering data preprocessing, model building, and evaluation using linear regression and random forest regression models. The choice of which model to use ultimately depends on the specific problem and dataset.
+
+Sure, here are brief explanations of the mentioned concepts:
+
+1. **Random Forest**:
+   - Random Forest is an ensemble learning method that combines multiple decision trees to make predictions. It's used for both classification and regression tasks.
+   - It reduces overfitting and increases accuracy by aggregating the predictions of individual trees.
+
+2. **Linear Regression**:
+   - Linear Regression is a statistical method used to model the relationship between a dependent variable and one or more independent variables.
+   - It finds the best-fit linear equation that represents the relationship, allowing predictions based on the input variables.
+
+3. **RMSE (Root Mean Squared Error)**:
+   - RMSE is a metric used to measure the accuracy of a predictive model.
+   - It quantifies the difference between predicted and actual values by taking the square root of the average of the squared differences.
+   - A lower RMSE indicates a better model fit.
+
+4. **Correlation**:
+   - Correlation measures the strength and direction of a linear relationship between two variables.
+   - It ranges from -1 (perfect negative correlation) to 1 (perfect positive correlation), with 0 indicating no linear correlation.
+   - It helps identify how changes in one variable relate to changes in another, which is useful for feature selection and understanding data relationships.
+
+####################################################################################################################################################################
+
+2) ML Email classification
+
+import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
+from sklearn.metrics import accuracy_score
+from sklearn.neighbors import KNeighborsClassifier
+
+
+df = pd.read_csv("./emails.csv")
+
+
+df.head()
+
+
+df.isnull().sum()
+
+
+X = df.iloc[:,1:3001]
+X
+
+
+Y = df.iloc[:,-1].values
+Y
+
+
+train_x,test_x,train_y,test_y = train_test_split(X,Y,test_size = 0.25)
+
+
+
+svc = SVC(C=1.0,kernel='rbf',gamma='auto')         
+# C here is the regularization parameter. Here, L2 penalty is used(default). It is the inverse of the strength of regularization.
+# As C increases, model overfits.
+# Kernel here is the radial basis function kernel.
+# gamma (only used for rbf kernel) : As gamma increases, model overfits.
+svc.fit(train_x,train_y)
+y_pred2 = svc.predict(test_x)
+print("Accuracy Score for SVC : ", accuracy_score(y_pred2,test_y))
+
+
+
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2, random_state=42)
+
+
+
+knn = KNeighborsClassifier(n_neighbors=7)
+
+
+
+knn.fit(X_train, y_train)
+
+
+print(knn.predict(X_test))
+
+
+print(knn.score(X_test, y_test))
+
+-----------------------------------------
+
+It seems like you've provided code for two machine learning models, Support Vector Classifier (SVC) and K-Nearest Neighbors (KNN), applied to an email dataset. Here's a summary of the code:
+
+1. Import necessary libraries and load the dataset from "emails.csv."
+
+2. Check the first few rows of the dataset using `df.head()` to get an overview of the data.
+
+3. Check for missing values in the dataset using `df.isnull().sum()`.
+
+4. Split the dataset into input features (X) and the target variable (Y):
+   - X includes columns from the 1st to the 3000th (assuming the dataset has at least 3000 columns).
+   - Y includes the last column (assuming it's the target variable).
+
+5. Split the data into training and testing sets using `train_test_split()`.
+
+6. Train a Support Vector Classifier (SVC) model:
+   - Configure the model with parameters like C, kernel, and gamma.
+   - Fit the model on the training data.
+   - Make predictions on the test data and calculate the accuracy score.
+
+7. Train a K-Nearest Neighbors (KNN) classifier:
+   - Set the number of neighbors (n_neighbors) to 7.
+   - Fit the model on the training data.
+   - Make predictions on the test data and calculate the accuracy score.
+
+The code primarily focuses on classifying emails using these two machine learning models and evaluating their accuracy.
+
+Certainly, here's a brief explanation of Support Vector Classifier (SVC) and K-Nearest Neighbors (KNN):
+
+1. **Support Vector Classifier (SVC)**:
+   - SVC is a supervised machine learning algorithm used for classification tasks.
+   - It works by finding a hyperplane that best separates different classes of data points.
+   - It aims to maximize the margin between the classes, and it's effective for both linear and non-linear classification.
+   - Parameters like C (regularization), kernel type (linear, polynomial, radial basis function, etc.), and gamma (kernel coefficient) can be configured to adapt to different datasets.
+
+2. **K-Nearest Neighbors (KNN)**:
+   - KNN is a simple and versatile supervised learning algorithm used for classification and regression.
+   - It classifies data points based on the majority class of their 'k' nearest neighbors in the feature space.
+   - K is a hyperparameter that you can adjust to control the number of neighbors considered.
+   - KNN is a non-parametric algorithm, which means it doesn't make strong assumptions about the underlying data distribution.
+   - It's easy to implement and understand but may not perform well on high-dimensional or large datasets.
+
+These two algorithms have different characteristics and can be suitable for different types of classification problems. SVC is powerful for both linear and non-linear data, while KNN is straightforward and can be effective in some scenarios with well-defined clusters.
+
+####################################################################################################################################################################
+
+3) ML Neural Network Bank Churn Modelling
+
+pip install tensorflow
+
+
+pip install keras
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+import seaborn as sns
+sns.set()
+
+
+dataset = pd.read_csv('Churn_Modelling.csv', index_col = 'RowNumber')
+dataset.head()
+
+
+#Customer ID and Surname would not be relevant as features
+X_columns = dataset.columns.tolist()[2:12]
+Y_columns = dataset.columns.tolist()[-1:]
+print(X_columns)
+print(Y_columns)
+
+
+X = dataset[X_columns].values 
+Y = dataset[Y_columns].values
+
+
+#We need to encode categorical variables such as geography and gender
+from sklearn.preprocessing import LabelEncoder
+X_column_transformer = LabelEncoder()
+X[:, 1] = X_column_transformer.fit_transform(X[:, 1])
+
+
+#Lets Encode gender now
+X[:, 2] = X_column_transformer.fit_transform(X[:, 2])
+
+
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+
+pipeline = Pipeline(
+    [
+        ('Categorizer', ColumnTransformer(
+            [
+                ("Gender Label Encoder", OneHotEncoder(categories = 'auto', drop = 'first'), [2]),
+                ("Geography Label Encoder", OneHotEncoder(categories = 'auto', drop = 'first'), [1])
+            ], 
+            remainder = 'passthrough', n_jobs = 1)),
+        ('Normalizer', StandardScaler())
+    ]
+)
+
+
+
+#Standardize the features
+X = pipeline.fit_transform(X)
+
+
+#Spilt the data
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size = 0.2, random_state = 0)
+
+
+#Let us create the Neural Network
+from keras.models import Sequential
+from keras.layers import Dense, Dropout
+
+
+#Initialize ANN
+classifier = Sequential()
+
+
+#Add input layer and hidden layer
+classifier.add(Dense(6, activation = 'relu', input_shape = (X_train.shape[1], )))
+classifier.add(Dropout(rate = 0.1))
+
+
+#Add second layer
+classifier.add(Dense(6, activation = 'relu'))
+classifier.add(Dropout(rate = 0.1))
+
+
+#Add output layer
+classifier.add(Dense(1, activation = 'sigmoid'))
+
+
+#Let us take a look at our network
+classifier.summary()
+
+
+#Optimize the weights
+classifier.compile(optimizer = 'adam', loss = 'binary_crossentropy', metrics = ['accuracy'])
+
+
+#Fitting the Neural Network
+history = classifier.fit(X_train, y_train, batch_size = 32, epochs = 200, validation_split = 0.1, verbose = 2)
+
+
+y_pred = classifier.predict(X_test)
+print(y_pred[:5])
+
+
+#Let us use confusion matrix with cutoff value as 0.5
+y_pred = (y_pred > 0.5).astype(int)
+print(y_pred[:5])
+
+
+#Making the Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(y_test, y_pred)
+print(cm)
+
+
+#Accuracy of our NN
+print(((cm[0][0] + cm[1][1])* 100) / len(y_test), '% of data was classified correctly')
+
+-------------------------------------
+
+Certainly, let's dive into each step in more detail:
+
+1. **Data Preparation**:
+   - The code starts by importing necessary libraries like pandas, NumPy, Matplotlib, and Seaborn.
+   - The dataset is loaded from a CSV file called "Churn_Modelling.csv" and stored in a Pandas DataFrame.
+   - The first few rows of the dataset are displayed to get a quick overview.
+
+2. **Data Preprocessing**:
+   - Checking for missing values: The code checks for missing values in the dataset using `df.isnull().sum()`. In this case, there don't appear to be any missing values.
+   - Separating Features and Target: The dataset is divided into features (X) and the target variable (Y). The features consist of all columns except for the last one, and the target variable is the last column.
+
+3. **Data Preprocessing (Categorical Encoding)**:
+   - Label Encoding: Two categorical columns, 'Geography' and 'Gender,' need to be encoded into numerical values for machine learning. Label encoding is applied to these columns using the `LabelEncoder` from scikit-learn.
+   
+4. **Data Preprocessing (Standardization)**:
+   - Standardization: Standardization is applied to all features to ensure they have a mean of 0 and a standard deviation of 1. This is important for neural networks as it helps them converge faster during training. It's done using the `StandardScaler` from scikit-learn.
+
+5. **Data Splitting**:
+   - The dataset is split into a training set (X_train, y_train) and a testing set (X_test, y_test) using the `train_test_split` function. An 80-20 split is used, which means 80% of the data is used for training, and 20% is used for testing.
+
+6. **Neural Network Construction**:
+   - The code constructs a neural network using the Keras library. The neural network is sequential, meaning layers are added sequentially.
+   - Input Layer: The input layer has 6 units (neurons) with the 'relu' (Rectified Linear Unit) activation function. The number 6 corresponds to the number of features.
+   - Hidden Layers: Two hidden layers with 6 units and 'relu' activation functions are added. These layers are used to learn complex patterns in the data.
+   - Dropout Layers: After each hidden layer, a dropout layer is included with a dropout rate of 0.1. Dropout helps prevent overfitting by randomly deactivating some neurons during training.
+   - Output Layer: The output layer has 1 unit with a 'sigmoid' activation function. This is typical for binary classification tasks.
+
+7. **Training the Neural Network**:
+   - The neural network model is compiled using the 'adam' optimizer, which is a popular optimization algorithm. The loss function used is 'binary_crossentropy,' suitable for binary classification.
+   - Training: The model is trained using the training data (X_train, y_train) for 200 epochs with a batch size of 32. Training data is further divided into a validation set to monitor the model's performance during training.
+
+8. **Model Evaluation**:
+   - Making Predictions: The trained model is used to make predictions on the test set (X_test).
+   - Thresholding Predictions: Predictions are thresholded at 0.5 to classify them into binary outcomes (0 or 1).
+   - Confusion Matrix: A confusion matrix is generated to evaluate the model's performance. It shows the number of true positives, true negatives, false positives, and false negatives.
+   - Accuracy Calculation: The accuracy of the model is calculated as the percentage of correctly classified data points using the confusion matrix.
+
+This code demonstrates the entire process of preparing, preprocessing, training, and evaluating a neural network for binary classification. The goal is likely to predict customer churn (whether customers will leave or not).
+
+The code you provided is building a neural network classifier to predict customer churn based on various features. However, it doesn't contain a specific line indicating whether a customer is leaving or not. Customer churn is typically represented by the output of the neural network model, which is obtained when you use the model to make predictions.
+
+In this code, the output layer of the neural network is using the sigmoid activation function (`classifier.add(Dense(1, activation='sigmoid')`). This is a common choice for binary classification problems, where the output represents the probability that a customer will churn (leave). When you predict using the model (`y_pred = classifier.predict(X_test)`), the resulting `y_pred` will be a list of probabilities, and a threshold of 0.5 is used to classify customers as either leaving or not.
+
+For example, if `y_pred` is greater than or equal to 0.5, it would be classified as a customer who is leaving (`1`), otherwise, it would be classified as not leaving (`0`). This is performed in the line: `y_pred = (y_pred > 0.5).astype(int)`. The resulting `y_pred` contains binary predictions (1 for leaving and 0 for not leaving).
+
+The confusion matrix (`cm`) is then used to evaluate the model's performance in classifying customers as leaving or not.
+
+So, the information about whether a customer is leaving or not is determined from the `y_pred` variable based on a probability threshold of 0.5.
+
+The line `y_pred = classifier.predict(X_test)` is used to predict whether customers are leaving (churning) based on the input data from `X_test`. This line uses the trained neural network model (`classifier`) to make predictions. The predictions are returned as probabilities, indicating the likelihood of each customer leaving.
+
+The `y_pred` variable will contain a list of these probabilities, where each element represents the predicted probability that a corresponding customer from the `X_test` dataset will churn (leave). The `[:5]` part is used to print the first five predictions, so you can see an example of the predicted probabilities for those customers.
+
+After these predictions are obtained, they can be further processed, such as applying a threshold to classify customers as "leaving" or "not leaving" based on these probabilities. This is typically done with a threshold of 0.5 (50% probability), as mentioned earlier.
+
+In your code, the threshold is applied in the line: `y_pred = (y_pred > 0.5).astype(int)`. This converts the probabilities into binary predictions (1 for leaving and 0 for not leaving) based on whether the probability is greater than or equal to 0.5.
+
+####################################################################################################################################################################
+
+4) ML Knn Diabetes confusion matrix
+
+import numpy as np
+import pandas as pd
+import warnings
+
+# Ignore all warnings
+warnings.filterwarnings('ignore')
+
+
+data = pd.read_csv('./diabetes.csv')
+data.head()
+
+
+#Check for null or missing values
+data.isnull().sum()
+
+
+#Replace zero values with mean values
+for column in data.columns[1:-3]:
+    data[column].replace(0, np.NaN, inplace = True)
+    data[column].fillna(round(data[column].mean(skipna=True)), inplace = True)
+data.head(10)
+
+
+X = data.iloc[:, :8] #Features
+Y = data.iloc[:, 8:] #Predictor
+
+
+#Perform Spliting
+from sklearn.model_selection import train_test_split
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=0)
+
+
+#KNN
+from sklearn.neighbors import KNeighborsClassifier
+knn = KNeighborsClassifier()
+knn_fit = knn.fit(X_train, Y_train.values.ravel())
+knn_pred = knn_fit.predict(X_test)
+
+
+from sklearn.metrics import confusion_matrix, precision_score, recall_score, f1_score, accuracy_score
+print("Confusion Matrix")
+print(confusion_matrix(Y_test, knn_pred))
+print("Accuracy Score:", accuracy_score(Y_test, knn_pred))
+print("Reacal Score:", recall_score(Y_test, knn_pred))
+print("F1 Score:", f1_score(Y_test, knn_pred))
+print("Precision Score:",precision_score(Y_test, knn_pred))
+
+------------------------------------------------------
+
+In this code, you are performing a binary classification task using the K-Nearest Neighbors (KNN) algorithm on a diabetes dataset. Here's a summary of what each part of the code is doing:
+
+1. Reading Data:
+   - You start by reading a dataset called 'diabetes.csv' using pandas and display the first few rows of the dataset to get an overview of the data.
+
+2. Handling Missing Values:
+   - You check for null or missing values in the dataset using `isnull().sum()`. It appears that the dataset doesn't contain any missing values.
+
+3. Data Preprocessing:
+   - You replace zero values in some columns (columns 1 to -3, excluding the last three columns) with the mean values of those columns. This is done to handle the presence of zero values that might indicate missing data or errors.
+
+4. Data Splitting:
+   - You split the dataset into features (X) and the target variable (Y). X contains the first 8 columns, and Y contains the last column (predictor).
+
+5. Train-Test Split:
+   - You further split the data into training and testing sets using the `train_test_split` function. 80% of the data is used for training, and 20% is used for testing.
+
+6. K-Nearest Neighbors (KNN) Classification:
+   - You apply the K-Nearest Neighbors (KNN) classification algorithm to the training data using `KNeighborsClassifier()`. The classifier is trained on the training data and makes predictions on the test data.
+
+7. Model Evaluation:
+   - You evaluate the KNN model's performance by calculating and printing the following metrics:
+     - Confusion Matrix: It provides an overview of true positive, true negative, false positive, and false negative predictions.
+     - Accuracy Score: The proportion of correctly classified instances.
+     - Recall Score: The proportion of actual positives correctly predicted as positives.
+     - F1 Score: A measure that combines precision and recall.
+     - Precision Score: The proportion of predicted positives correctly classified as positives.
+
+These metrics are used to assess how well the KNN model performs in predicting diabetes.
+
+
+K-Nearest Neighbors (KNN) is a simple and intuitive supervised machine learning algorithm used for both classification and regression tasks. It's based on the idea that objects or data points with similar characteristics are more likely to be in the same class or share similar numerical values.
+
+Here's a brief explanation of how KNN works:
+
+1. **Data Representation**:
+   - Each data point in the dataset is represented as a point in a multi-dimensional feature space. In a classification problem, each data point is associated with a class label.
+
+2. **K-Value Selection**:
+   - The "K" in KNN represents the number of nearest neighbors to consider when making a prediction. It is a hyperparameter that you need to specify before applying the algorithm.
+
+3. **Prediction Process**:
+   - To predict the class or value of a new data point, KNN performs the following steps:
+     a. Calculate the distance between the new data point and all other data points in the training set.
+     b. Select the top "K" data points (neighbors) that are closest to the new point based on distance.
+     c. For classification:
+        - If it's a classification problem, the predicted class of the new data point is determined by a majority vote among the K nearest neighbors. In other words, the class that occurs most frequently among the K neighbors is chosen as the prediction.
+     d. For regression:
+        - If it's a regression problem, the predicted value is often the mean or weighted average of the values of the K nearest neighbors.
+
+4. **Decision Boundary**:
+   - KNN can be visualized as partitioning the feature space into regions, and each region corresponds to a class or value. The decision boundary is not a straight line but rather a complex boundary that adapts to the distribution of data points.
+
+5. **Hyperparameter Tuning**:
+   - Selecting the appropriate value of K is crucial. A smaller K (e.g., K=1) makes the model more sensitive to noise and can lead to overfitting, while a larger K (e.g., K=10) can make the model less sensitive but might underfit.
+
+Key Points:
+- KNN is a non-parametric and instance-based learning algorithm, meaning it doesn't make any underlying assumptions about the data distribution.
+- It can handle both classification and regression tasks.
+- It is relatively simple and easy to implement, making it a good choice for baseline models.
+- The choice of distance metric (e.g., Euclidean, Manhattan) can influence the results.
+- KNN can be computationally expensive, as it requires calculating distances to all data points in the training set.
+- The performance of KNN can be influenced by the choice of K and data preprocessing steps.
+
+In summary, KNN is a versatile and interpretable algorithm used for making predictions based on the similarity between data points in a feature space. It's often used as a starting point for exploring datasets and evaluating how well a simple model can perform on a given task.
+
+
+####################################################################################################################################################################
+
+5) ML Gradient Descent 
+
+from sympy import Symbol, lambdify
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+x = Symbol('x')
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from sympy import Symbol, lambdify
+
+def gradient_descent(
+    function, start, learn_rate, n_iter=10000, tolerance=1e-06, step_size=1
+):
+    x = Symbol('x')
+    gradient = lambdify(x, function.diff(x))
+    function = lambdify(x, function)
+    
+    points = [start]
+    iters = 0  # iteration counter
+
+    while step_size > tolerance and iters < n_iter:
+        prev_x = start  # Store current x value in prev_x
+        start = start - learn_rate * gradient(prev_x)  # Gradient descent
+        step_size = abs(start - prev_x)  # Change in x
+        iters = iters + 1  # iteration count
+        points.append(start)
+    
+    print("The local minimum occurs at", start)
+
+    # Create plotting array
+    x_ = np.linspace(-7, 5, 100)
+    y = function(x_)
+
+    # Setting the axes at the center
+    fig = plt.figure(figsize=(10, 10))
+    ax = fig.add_subplot(1, 1, 1)
+    ax.spines['left'].set_position('center')
+    ax.spines['bottom'].set_position('zero')
+    ax.spines['right'].set_color('none')
+    ax.spines['top'].set_color('none')
+    ax.xaxis.set_ticks_position('bottom')
+    ax.yaxis.set_ticks_position('left')
+
+    # Plot the function and gradient descent points
+    plt.plot(x_, y, 'r')
+    plt.plot(points, function(np.array(points)), '-o')
+
+    # Show the plot
+    plt.show()
+
+
+
+
+function=(x+5)**2
+gradient_descent(
+ function=function, start=3.0, learn_rate=0.2, n_iter=50
+)
+
+
+----------------------------------------------------------
+
+Gradient descent is an optimization algorithm used to minimize a function by adjusting its parameters iteratively. It's a widely used technique in machine learning, particularly in training machine learning models, to find the optimal values for the model's parameters that minimize a cost function.
+
+Here's a high-level explanation of how gradient descent works:
+
+1. **Initialization**: Start with an initial guess for the model's parameters. This can be random or predefined.
+
+2. **Compute the Gradient**: Calculate the gradient (a vector of partial derivatives) of the cost function with respect to each parameter. The gradient indicates the direction and magnitude of the steepest ascent of the function.
+
+3. **Update Parameters**: Adjust the parameters in the opposite direction of the gradient to minimize the cost function. This update is performed using a learning rate, which controls the step size for each iteration. A smaller learning rate results in smaller steps, which can improve convergence but may require more iterations.
+
+4. **Iterate**: Repeat steps 2 and 3 for a specified number of iterations or until convergence criteria are met (e.g., the change in the cost function becomes small).
+
+The gradient descent process continues until it converges to a minimum of the cost function. There are various variants of gradient descent, including stochastic gradient descent (SGD) and mini-batch gradient descent, which process subsets of the data at each iteration to improve efficiency.
+
+In summary, gradient descent is a fundamental optimization algorithm used to find the optimal parameters for a model by iteratively updating them in the direction that reduces the cost function, ultimately reaching a minimum.
+
+
+
+
+
+Your code is performing gradient descent to find the local minimum of the function \(f(x) = (x + 5)^2\). Here's how the code works:
+
+1. You've defined the function \(f(x)\) as \((x + 5)^2\).
+
+2. You've created a `gradient_descent` function that takes the function, initial starting point (`start`), learning rate (`learn_rate`), maximum number of iterations (`n_iter`), and a tolerance for stopping (`tolerance`).
+
+3. Inside the `gradient_descent` function:
+   - You use the SymPy library to create a symbolic representation of the function and its derivative. The symbolic representation of the gradient is created with `lambdify`.
+   - You initialize an empty list `points` to keep track of the points visited during the gradient descent.
+   - You set `iters` to 0 to count the number of iterations.
+
+4. The main loop runs as long as the step size is greater than the specified tolerance and the number of iterations is less than the maximum allowed iterations.
+   - In each iteration, you:
+     - Update `prev_x` with the current value of `start`.
+     - Update `start` by subtracting the product of the learning rate and the gradient of the function at the current point.
+     - Update the `step_size` with the absolute difference between the new `start` and `prev_x`.
+     - Increment the `iters` count.
+     - Append the current `start` value to the `points` list.
+
+5. After the loop, the function prints the local minimum found.
+
+6. Finally, you create an array of x values, evaluate the function at those points, and plot both the function and the points visited during the gradient descent. The plot is set up with the origin at the center, and the function is shown in red, while the gradient descent path is shown as a series of points connected by lines.
+
+In this specific example, you've applied gradient descent to find the local minimum of the function \((x + 5)^2\) starting from an initial point of 3.0 and using a learning rate of 0.2. The code visualizes the convergence to the local minimum on a plot.
+
+The result should show that the local minimum occurs at \(x = -5\) because this is where the function reaches its minimum value.
+
+####################################################################################################################################################################
+
