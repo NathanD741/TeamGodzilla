@@ -1,0 +1,86 @@
+BT CODES 
+
+
+ASSIGNMENT 3      BANK TRANSACTION
+
+
+pragma solidity ^0.8.0;
+
+contract MyBank {
+    mapping(address => uint) private _balances;
+    address public owner;
+    event LogDepositeMade(address accountHoder, uint amount);
+
+    constructor () {
+        owner = msg.sender;
+        emit LogDepositeMade(msg.sender, 10000);
+    }
+
+    function deposite() public payable returns (uint) {
+        require((_balances[msg.sender] + msg.value) > _balances[msg.sender] && msg.sender != address(0));
+        _balances[msg.sender] += msg.value;
+        emit LogDepositeMade(msg.sender, msg.value);
+        return _balances[msg.sender];
+    } 
+
+    function withdraw (uint withdrawAmount) public returns (uint) {
+        require(_balances[msg.sender] >= withdrawAmount);
+        require(msg.sender != address(0));
+        require(_balances[msg.sender] > 0);
+        _balances[msg.sender] -= withdrawAmount;
+        address payable recipient = payable(msg.sender);
+        recipient.transfer(withdrawAmount);
+        emit LogDepositeMade(msg.sender, withdrawAmount);
+        return _balances[msg.sender];
+    }
+
+    function viewBalance() public view returns (uint) {
+        return _balances[msg.sender];
+    }
+}
+
+
+-----------------------------------------------------------------------------------------------------------------------------------
+
+
+
+ASSIGNMNET 4  STUDENT DATA 
+
+
+pragma solidity ^0.8.0;
+
+contract StudentRegistry {
+    struct Student {
+        string name;
+        uint256 age;
+    }
+
+    Student[] private students;
+
+    // Define an event to log the received Ether value
+    event ReceivedEther(address indexed sender, uint256 value);
+
+    receive() external payable {
+        // This function can receive Ether, but it doesn't do anything in this example.
+        // Log the received Ether value
+        emit ReceivedEther(msg.sender, msg.value);
+    }
+
+    fallback() external payable {
+        // Fallback function to receive Ether
+        emit ReceivedEther(msg.sender, msg.value);
+    }
+
+    function addStudent(string memory name, uint256 age) public {
+        students.push(Student(name, age));
+    }
+
+    function getStudent(uint256 index) public view returns (string memory, uint256) {
+        require(index < students.length, "Student not found");
+        return (students[index].name, students[index].age);
+    }
+
+    function getStudentCount() public view returns (uint256) {
+        return students.length;
+    }
+}
