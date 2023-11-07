@@ -38,7 +38,68 @@ contract MyBank {
         return _balances[msg.sender];
     }
 }
+------------------------------------------------------------------------------------------------------------------------------------
+// SPDX-License-Identifier: Bhide License
+pragma solidity ^0.8.0;
 
+contract Bank {
+    // mapping(type => type) 
+    mapping(address => uint256) private balances;
+
+    function createAccount() public {
+        balances[msg.sender] = 0;
+    }
+
+    // payable is necessary because the function accepts a value (amount) as a parameter (EXTERNAL SOURCE AHE MHANUN)
+    function deposit(uint256 amount) public payable {
+        balances[msg.sender] += amount;
+    }
+
+    function withdraw(uint256 amount) public {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+    }
+
+    function transfer(address recipient, uint256 amount) public {
+        require(balances[msg.sender] >= amount, "Insufficient balance");
+        balances[msg.sender] -= amount;
+        balances[recipient] += amount;
+    }
+
+    // view does not modify values within the contract (return kartana lihaycha)
+    function getBalance() public view returns (uint256) {
+        return balances[msg.sender];
+    }
+}
+
+XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+This is a simple Solidity smart contract called "Bank" that simulates a basic banking system. The contract allows users to create accounts, deposit funds, withdraw funds, transfer funds, and check their account balances.
+
+Here's a detailed explanation of each part of the contract:
+
+1. **Pragma Directive**: This specifies the Solidity compiler version to be used for compiling the contract. In this case, it's Solidity version 0.8.0.
+
+2. **Contract Definition**: The `contract Bank` defines the main structure of the smart contract.
+
+3. **State Variable**:
+   - `mapping(address => uint256) private balances`: This state variable is a mapping that associates Ethereum addresses with their account balances. It's declared as `private`, meaning it can only be accessed from within the contract. Each address has a corresponding unsigned integer (uint256) balance. 
+
+4. **createAccount Function**:
+   - `function createAccount() public`: This function allows a user to create an account. When called, it initializes the account balance of the sender (msg.sender) to zero.
+
+5. **deposit Function**:
+   - `function deposit(uint256 amount) public payable`: This function allows users to deposit funds into their accounts. It is marked as `payable` because it can accept Ether along with the function call. The `amount` parameter specifies how much Ether the user wants to deposit. The function increases the balance of the sender by the specified amount.
+
+6. **withdraw Function**:
+   - `function withdraw(uint256 amount) public`: This function allows users to withdraw funds from their accounts. It checks if the sender's balance is sufficient to cover the withdrawal and reverts the transaction if the balance is insufficient. If the balance is adequate, it deducts the specified amount from the sender's balance.
+
+7. **transfer Function**:
+   - `function transfer(address recipient, uint256 amount) public`: This function allows users to transfer funds from their account to another recipient's account. Similar to the `withdraw` function, it checks the sender's balance to ensure there are sufficient funds for the transfer. If the balance is enough, it deducts the specified amount from the sender's balance and adds it to the recipient's balance.
+
+8. **getBalance Function**:
+   - `function getBalance() public view returns (uint256)`: This function allows users to check their account balance. It is marked as `view` because it doesn't modify the contract's state. It simply returns the balance associated with the caller's address (msg.sender).
+
+The contract essentially acts as a simple bank, allowing users to create accounts, deposit and withdraw funds, transfer money to others, and check their balances. It demonstrates some fundamental concepts of Solidity, such as state variables, functions, access control, and error handling using `require`. It's important to note that this is a simplified example, and in a real-world application, additional features, security measures, and considerations would be necessary.
 
 -----------------------------------------------------------------------------------------------------------------------------------
 
@@ -47,6 +108,7 @@ contract MyBank {
 ASSIGNMNET 4  STUDENT DATA 
 
 
+// SPDX-License-Identifier: Bhide License
 pragma solidity ^0.8.0;
 
 contract StudentRegistry {
@@ -84,3 +146,49 @@ contract StudentRegistry {
         return students.length;
     }
 }
+
+----------------------------------------------------------
+
+The provided code is a simple Solidity smart contract named `StudentRegistry`. This contract allows you to add and retrieve information about students. Here's an explanation of the code:
+
+1. `pragma solidity ^0.8.0;`: This statement specifies the compiler version to use. The contract is designed to work with Solidity version 0.8.0 and later.
+
+2. `struct Student`: Defines a structure `Student` with two properties: `name` (a string) and `age` (a uint256).
+
+3. `Student[] private students`: Declares a private array of `Student` structs called `students`. This array will store the information of students added to the registry.
+
+4. `event ReceivedEther(address indexed sender, uint256 value)`: Declares an event named `ReceivedEther`. This event logs the address of the sender and the amount of Ether sent. It is used in both the `receive` and `fallback` functions to log received Ether.
+
+5. `receive() external payable`: The `receive` function is a special function that allows the contract to receive Ether when a transaction is sent with Ether. It emits the `ReceivedEther` event to log the received Ether and allows the contract to accept Ether without performing any specific action.
+
+6. `fallback() external payable`: The `fallback` function is another special function that allows the contract to receive Ether. It also emits the `ReceivedEther` event to log the received Ether. This function is called when the contract receives Ether without specifying a function to execute.
+
+7. `function addStudent(string memory name, uint256 age) public`: This function allows you to add a new student to the `students` array. It takes a name and age as parameters and creates a new `Student` struct, which is then added to the array.
+
+8. `function getStudent(uint256 index) public view returns (string memory, uint256)`: This function allows you to retrieve the name and age of a student at a specific index in the `students` array. It returns a tuple with the name and age.
+
+9. `function getStudentCount() public view returns (uint256)`: This function returns the total number of students in the `students` array.
+
+**Next Steps in Remix:**
+
+To work with this smart contract in Remix, follow these steps:
+
+1. Open Remix (https://remix.ethereum.org/).
+
+2. Create a new file and paste the code into the editor.
+
+3. Select the appropriate Solidity compiler version (0.8.0) in the "Solidity Compiler" tab on the left.
+
+4. Compile the contract by clicking the "Compile `StudentRegistry.sol`" button.
+
+5. After successful compilation, go to the "Deploy & Run Transactions" tab.
+
+6. You can deploy the contract by selecting "StudentRegistry" from the dropdown and clicking the "Deploy" button. This will deploy the contract to a local development environment.
+
+7. Once deployed, you can interact with the contract using the provided functions (e.g., `addStudent`, `getStudent`, `getStudentCount`) in the "Deployed Contracts" section.
+
+8. Use the "Add Student" button to add students to the registry, and you can call other functions to retrieve student information.
+
+9. The "Received Ether" section shows Ether transactions and logs.
+
+You can experiment with adding students and retrieving their information within Remix's development environment.
