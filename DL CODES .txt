@@ -1,0 +1,558 @@
+----------------------------------------------------
+https://github.com/PROxZIMA/Academic-Codes
+----------------------------------------------------
+
+
+DL ASSIGNMENT 1 
+
+Linear regression by using Deep Neural network: Implement Boston housing price predictionproblem by Linear regression using Deep Neural network. Use Boston House price prediction dataset.
+
+Sure, let's break down the code and provide explanations, along with some potential viva questions and their answers.
+
+### 1. Importing Libraries
+python
+import tensorflow as tf
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+*Explanation:*  
+- This section imports the necessary libraries for working with TensorFlow, NumPy, Pandas, and Matplotlib.
+
+### 2. Loading the Boston Housing Dataset
+python
+(X_train , y_train), (X_test , y_test) = tf.keras.datasets.boston_housing.load_data(
+                                            path='boston_housing_npz',
+                                            test_split=0.2,
+                                            seed=42
+                                        )
+
+*Explanation:*  
+- This loads the Boston Housing dataset, which is commonly used for regression tasks.
+
+### 3. Data Preprocessing with Pandas
+python
+X_train_df = pd.DataFrame(X_train)
+y_train_df = pd.DataFrame(y_train)
+
+*Explanation:*  
+- The training data is converted into Pandas DataFrames for better visualization and manipulation.
+
+### 4. Normalization and Data Transformation
+python
+ct = make_column_transformer(
+    (MinMaxScaler(), [0, 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+)
+X_train = ct.fit_transform(X_train).astype('float32')
+X_test = ct.transform(X_test).astype('float32')
+y_train = y_train.astype('float32')
+y_test = y_test.astype('float32')
+
+*Explanation:*  
+- The features are normalized using MinMaxScaler.
+- Data types are converted to float32.
+
+### 5. Model Building and Compilation
+python
+model = tf.keras.Sequential([
+    tf.keras.layers.Dense(units=10, activation='relu', input_shape=(X_train.shape[1],), name='Dense_1'),
+    tf.keras.layers.Dense(units=100, activation='relu', name='Dense_2'),
+    tf.keras.layers.Dense(units=1, name='Prediction')
+])
+
+model.compile(
+    loss=tf.keras.losses.mean_squared_error,
+    optimizer=tf.keras.optimizers.RMSprop(learning_rate=0.01),
+    metrics=['mse']
+)
+
+*Explanation:*  
+- This defines a sequential model with three dense layers for regression.
+- Mean squared error is used as the loss function, RMSprop is used as the optimizer, and mean squared error is used as the evaluation metric.
+
+### Possible Viva Questions:
+1. *What is the purpose of the MinMaxScaler in this code?*
+   - The MinMaxScaler is used to scale the feature values to a range between 0 and 1, ensuring that all features contribute equally to the model.
+
+2. *Why do we split the data into training, validation, and test sets?*
+   - The training set is used to train the model, the validation set is used to tune hyperparameters and prevent overfitting, and the test set is used to evaluate the model's performance on unseen data.
+
+3. **What does the Sequential model represent in TensorFlow?**
+   - The Sequential model represents a linear stack of layers. It is the simplest type of model in TensorFlow for building neural networks.
+
+4. *Why is mean squared error used as the loss function for this regression task?*
+   - Mean squared error (MSE) is commonly used for regression tasks as it measures the average squared difference between the predicted and actual values. Minimizing MSE results in a model that produces accurate predictions.
+
+5. **What is the purpose of the Dense layers in the model?**
+   - The Dense layers are fully connected layers where each neuron is connected to every neuron in the previous layer. They help in learning non-linear relationships between features and the target variable.
+
+### 6. Training the Model and Evaluation
+python
+history = model.fit(
+    X_train,
+    y_train,
+    batch_size=32,
+    epochs=50,
+    validation_data=(X_val, y_val)
+)
+loss, mse = model.evaluate(X_test, y_test, batch_size=32)
+
+*Explanation:*  
+- The model is trained for 50 epochs with a batch size of 32.
+- The training history is stored in the history variable.
+- Model evaluation is performed on the test set to compute the loss and mean squared error.
+
+### 7. Visualizing Training History
+python
+pd.DataFrame(history.history).plot(figsize=(6, 4), xlabel="Epochs", ylabel="Loss", title='Loss Curves')
+plt.show()
+
+*Explanation:*  
+- This code plots the training and validation loss curves over epochs.
+
+### 8. Making Predictions
+python
+y_pred = model.predict(X_test)
+
+*Explanation:*  
+- Predictions are made on the test set using the trained model.
+
+### 9. Possible Viva Questions:
+6. *What does the loss curve tell us about the training process?*
+   - The loss curve shows how the training and validation loss change over epochs. It helps in monitoring the model's performance and identifying overfitting or underfitting.
+
+7. *How is the mean squared error interpreted in regression tasks?*
+   - Mean squared error (MSE) measures the average squared difference between the predicted and actual values. Lower MSE indicates better model performance, as it represents how close the predicted values are to the actual values on average.
+
+8. *Why do we split the data into training, validation, and test sets?*
+   - The training set is used to train the model, the validation set is used to tune hyperparameters and prevent overfitting, and the test set is used to evaluate the model's performance on unseen
+
+ data.
+
+9. **What are the advantages of using the Sequential model in TensorFlow?**
+   - The Sequential model provides a simple and intuitive way to build neural networks, especially for beginners. It allows for easy stacking of layers in a linear manner.
+
+These questions cover various aspects of the provided code, from data preprocessing to model evaluation, and can help in understanding the underlying concepts of building and evaluating regression models in TensorFlow.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+DL ASSIGNMENT 2
+Multiclass classification using Deep Neural Networks: Example: Use the OCR letter recognition  dataset  https: //archive.ics.uci.edu /ml/datasets/letter+ recognition.
+
+### 1. Importing Libraries
+python
+import numpy as np
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout
+from tensorflow.keras.optimizers import RMSprop
+from tensorflow.keras.datasets import mnist
+import matplotlib.pyplot as plt
+from sklearn import metrics
+
+*Explanation:* 
+- numpy is a library for numerical operations in Python.
+- tensorflow.keras is a deep learning library for building and training neural networks.
+- matplotlib.pyplot is a plotting library for visualizing data.
+- sklearn.metrics provides tools for evaluating machine learning models.
+
+### 2. Loading the MNIST Dataset
+python
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
+
+*Explanation:* 
+- This code loads the MNIST dataset, a collection of handwritten digits, which is commonly used for training and testing machine learning models.
+
+### 3. Displaying an Image
+python
+plt.imshow(x_train[0], cmap='gray')
+plt.show()
+
+*Explanation:* 
+- This code displays the first image from the training dataset using grayscale colormap.
+
+### 4. Preprocessing the Data
+python
+x_train = x_train.reshape(60000, 784)
+x_test = x_test.reshape(10000, 784)
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
+x_train /= 255
+x_test /= 255
+
+*Explanation:* 
+- Reshaping the images to a flat vector of size 784 (28x28 pixels).
+- Converting the data type to float32.
+- Normalizing the pixel values between 0 and 1 by dividing by 255.
+
+### 5. One-Hot Encoding the Labels
+python
+y_train_int = y_train.astype(int)
+y_test_int = y_test.astype(int)
+y_train_onehot = np.eye(num_classes)[y_train_int]
+y_test_onehot = np.eye(num_classes)[y_test_int]
+
+*Explanation:* 
+- Converting the labels to integers.
+- One-hot encoding the integer labels into categorical vectors.
+
+### 6. Building the Neural Network Model
+python
+model = Sequential()
+model.add(Dense(512, activation='relu', input_shape=(784,)))
+model.add(Dropout(0.2))
+model.add(Dense(512, activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(num_classes, activation='softmax'))
+
+*Explanation:* 
+- Creating a sequential model.
+- Adding dense layers with ReLU activation function.
+- Adding dropout layers to prevent overfitting.
+- The last layer has softmax activation for multi-class classification.
+
+### 7. Compiling the Model
+python
+model.compile(loss='categorical_crossentropy', optimizer=RMSprop(), metrics=['accuracy'])
+
+*Explanation:* 
+- Compiling the model with categorical cross-entropy loss function, RMSprop optimizer, and accuracy metric.
+
+### 8. Training the Model
+python
+history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1, validation_data=(x_test, y_test))
+
+*Explanation:* 
+- Training the model on the training data for a specified number of epochs and batch size.
+- Validating the model on the test data.
+
+### 9. Evaluating the Model
+python
+score = model.evaluate(x_test, y_test, verbose=0)
+print('Test loss:', score[0])
+print('Test accuracy:', score[1])
+
+*Explanation:* 
+- Evaluating the trained model on the test data and printing the test loss and accuracy.
+
+### Possible Questions and Answers:
+1. *What is the purpose of importing libraries?*
+   - Libraries like NumPy, TensorFlow, and Matplotlib provide functions and tools for working with data, building and training models, and visualizing results.
+
+2. *Why do we need to preprocess the data?*
+   - Preprocessing prepares the data for the model by converting it into a suitable format, such as normalizing pixel values and reshaping images.
+
+3. *What is one-hot encoding?*
+   - One-hot encoding is a technique used to represent categorical data where each category is converted into a binary vector with only one element set to 1 and the rest set to 0.
+
+4. *What is the purpose of dropout layers?*
+   - Dropout layers are used to prevent overfitting by randomly dropping out a fraction of neurons during training, forcing the network to learn more robust features.
+
+5. *Why do we compile the model?*
+   - Compiling the model specifies the loss function, optimizer, and metrics to be used during training.
+
+6. *What is the difference between training and validation data?*
+   - Training data is used to update the model's parameters, while validation data is used to evaluate the model's performance during training and adjust hyperparameters.
+
+7. *How do we interpret the test loss and accuracy?*
+   - The test loss measures how well the model performs on unseen data, while the test accuracy indicates the percentage of correctly classified instances in the test set.
+
+These are some fundamental questions that cover the key concepts in the code. Understanding them will give you a good grasp of neural network basics and the specific tasks performed in this code.
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+DL ASSIGNMNET 2B 
+Binary classification using Deep Neural Networks Example: Classify movie reviews intopositive" reviews and "negative" reviews, just based on the text content of the reviews. Use IMDB dataset
+
+Sure, let's break down the code and explain it step by step, just like we did before.
+
+### 1. Importing Libraries
+python
+import numpy as np
+from keras.datasets import imdb
+from keras import models
+from keras import layers
+from keras import optimizers
+from keras import losses
+from keras import metrics
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+*Explanation:*
+- These lines import necessary libraries such as NumPy, Keras, and Matplotlib.
+- %matplotlib inline is a magic command used in Jupyter notebooks to display plots inline.
+
+### 2. Loading the IMDB Dataset
+python
+(train_data, train_labels), (test_data, test_labels) = imdb.load_data(num_words = 10000)
+
+*Explanation:*
+- This loads the IMDB dataset, which contains movie reviews labeled as positive or negative sentiment.
+- num_words = 10000 restricts the vocabulary to the top 10,000 most frequently occurring words.
+
+### 3. Preprocessing the Data
+python
+def vectorize_sequences(sequences, dimension=10000):
+    results = np.zeros((len(sequences), dimension))
+    for i,sequence in enumerate(sequences):
+        results[i,sequence] = 1
+    return results
+
+X_train = vectorize_sequences(train_data)
+X_test = vectorize_sequences(test_data)
+y_train = np.asarray(train_labels).astype('float32')
+y_test  = np.asarray(test_labels).astype('float32')
+
+*Explanation:*
+- This function converts sequences of word indices into one-hot encoded vectors.
+- X_train and X_test are vectorized representations of the training and test data.
+- y_train and y_test are converted into NumPy arrays and cast to float32 data type.
+
+### 4. Building the Model
+python
+model = models.Sequential()
+model.add(layers.Dense(16, activation='relu', input_shape=(10000,)))
+model.add(layers.Dense(16, activation='relu'))
+model.add(layers.Dense(1, activation='sigmoid'))
+model.compile(
+    optimizer=optimizers.RMSprop(learning_rate=0.001),
+    loss = losses.binary_crossentropy,
+    metrics = [metrics.binary_accuracy]
+)
+
+*Explanation:*
+- This defines a sequential model with three dense layers.
+- The first two layers have 16 units each with ReLU activation function.
+- The last layer is a single unit with sigmoid activation for binary classification.
+- The model is compiled with RMSprop optimizer, binary crossentropy loss function, and binary accuracy metric.
+
+### 5. Training the Model
+python
+history = model.fit(
+    partial_X_train,
+    partial_y_train,
+    epochs=20,
+    batch_size=512,
+    validation_data=(X_val, y_val)
+)
+
+*Explanation:*
+- This code trains the model on partial training data for 20 epochs with a batch size of 512.
+- Validation data is used to monitor the model's performance during training.
+
+### 6. Visualizing Training History
+python
+history_dict = history.history
+loss_values = history_dict['loss']
+val_loss_values = history_dict['val_loss']
+acc_values = history_dict['binary_accuracy']
+val_acc_values = history_dict['val_binary_accuracy']
+
+*Explanation:*
+- The training history is stored in history.history.
+- Loss and accuracy values for training and validation data are extracted.
+
+### 7. Plotting Training and Validation Loss
+python
+plt.plot(epochs, loss_values, 'g', label="Training Loss")
+plt.plot(epochs, val_loss_values, 'b', label="Validation Loss")
+plt.title('Training and Validation Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss Value')
+plt.legend()
+plt.show()
+
+*Explanation:*
+- This code plots the training and validation loss over epochs.
+
+### 8. Plotting Training and Validation Accuracy
+python
+plt.plot(epochs, acc_values, 'g', label="Training Accuracy")
+plt.plot(epochs, val_acc_values, 'b', label="Validation Accuracy")
+plt.title('Training and Validation Accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+*Explanation:*
+- This code plots the training and validation accuracy over epochs.
+
+### 9. Evaluating the Model on Test Data
+python
+model.fit(
+    partial_X_train,
+    partial_y_train,
+    epochs=3,
+    batch_size=512,
+    validation_data=(X_val, y_val)
+)
+result = model.predict(X_test)
+y_pred = np.zeros(len(result))
+for i, score in enumerate(result):
+    y_pred[i] = np.round(score)
+mae = metrics.mean_absolute_error(y_pred, y_test)
+mae
+
+*Explanation:*
+- This code evaluates the model on the test data by predicting sentiment labels and calculating mean absolute error between predicted and true labels.
+
+### Possible Questions and Answers:
+1. *What is the purpose of vectorizing sequences?*
+   - Vectorizing sequences converts them into a format suitable for feeding into neural networks, where each word is represented by a binary vector.
+
+2. *Why do we use activation functions like ReLU and sigmoid?*
+   - ReLU is used to introduce non-linearity in the model, allowing it to learn complex patterns. Sigmoid is used for binary classification tasks as it squashes the output between 0 and 1, representing probabilities.
+
+3. *How do we interpret the loss and accuracy curves?*
+   - The loss curve shows how the training and validation loss changes over epochs. The accuracy curve shows how the training and validation accuracy changes over epochs. We aim to minimize loss and maximize accuracy.
+
+4. *Why do we split the data into training, validation, and test sets?*
+   - We split the data to train the model on a portion of the data, tune hyperparameters on the validation set, and evaluate the model's final performance on the test set to assess its generalization ability.
+
+5. *What is mean absolute error (MAE) used for?*
+   - MAE measures the average absolute difference between predicted and true labels, providing an indication of how well the model's predictions match the actual sentiment labels.
+
+These questions cover the core concepts and tasks performed in the provided code. Understanding them will give you a solid foundation in building and evaluating neural network models for sentiment analysis.
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+DL ASSIGNMNET 3
+Use MNIST Fashion Dataset and create a classifier to classify fashion clothing into categories.
+
+Certainly! Let's break down the code and explain it step by step, just like before.
+
+### 1. Importing Libraries
+python
+import tensorflow as tf
+import matplotlib.pyplot as plt
+from tensorflow import keras
+import numpy as np
+
+*Explanation:*
+- These lines import necessary libraries such as TensorFlow, Matplotlib, and NumPy.
+
+### 2. Loading the Fashion MNIST Dataset
+python
+(x_train, y_train), (x_test, y_test) = keras.datasets.fashion_mnist.load_data()
+
+*Explanation:*
+- This loads the Fashion MNIST dataset, which consists of grayscale images of fashion items along with their labels.
+
+### 3. Preprocessing the Data
+python
+x_train = x_train.astype('float32') / 255.0
+x_test = x_test.astype('float32') / 255.0
+x_train = x_train.reshape(-1, 28, 28, 1)
+x_test = x_test.reshape(-1, 28, 28, 1)
+
+*Explanation:*
+- The pixel values of the images are scaled to be between 0 and 1 by dividing by 255.
+- The images are reshaped to have a single channel (grayscale) and the dimensions (-1, 28, 28, 1) indicate the number of samples, width, height, and channels respectively.
+
+### 4. Building the Convolutional Neural Network (CNN) Model
+python
+model = keras.Sequential([
+    keras.layers.Conv2D(32, (3,3), activation='relu', input_shape=(28,28,1)),
+    keras.layers.MaxPooling2D((2,2)),
+    keras.layers.Dropout(0.25),
+    keras.layers.Conv2D(64, (3,3), activation='relu'),
+    keras.layers.MaxPooling2D((2,2)),
+    keras.layers.Dropout(0.25),
+    keras.layers.Conv2D(128, (3,3), activation='relu'),
+    keras.layers.Flatten(),
+    keras.layers.Dense(128, activation='relu'),
+    keras.layers.Dropout(0.25),
+    keras.layers.Dense(10, activation='softmax')
+])
+
+*Explanation:*
+- This defines a sequential CNN model using Keras.
+- It consists of multiple convolutional layers with ReLU activation, max pooling layers, dropout layers to prevent overfitting, and dense layers.
+- The last dense layer has 10 units with softmax activation for multi-class classification (10 classes).
+
+### 5. Compiling the Model and Summary
+python
+model.compile(optimizer='adam',
+              loss='sparse_categorical_crossentropy',
+              metrics=['accuracy'])
+
+model.summary()
+
+*Explanation:*
+- The model is compiled with the Adam optimizer, sparse categorical crossentropy loss function, and accuracy metric.
+- The summary() method prints a summary of the model architecture and the number of parameters in each layer.
+
+### 6. Loading and Visualizing Fashion MNIST Data
+python
+fashion_mnist = tf.keras.datasets.fashion_mnist
+(train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
+
+*Explanation:*
+- This loads the Fashion MNIST dataset again to show a visualization of the images and their labels.
+
+### 7. Preprocessing Fashion MNIST Data
+python
+train_images = train_images / 255.0
+test_images = test_images / 255.0
+
+*Explanation:*
+- Similar to earlier, the pixel values of the images are scaled to be between 0 and 1.
+
+### 8. Visualizing Fashion MNIST Images
+python
+plt.figure(figsize=(10,10))
+for i in range(20):
+    plt.subplot(5,5,i+1)
+    plt.xticks([])
+    plt.yticks([])
+    plt.grid(False)
+    plt.imshow(train_images[i], cmap=plt.cm.binary)
+    plt.xlabel(class_names[train_labels[i]])
+plt.show()
+
+*Explanation:*
+- This code plots a grid of 20 images from the Fashion MNIST dataset along with their corresponding labels.
+
+### Possible Questions and Answers:
+1. *What is Fashion MNIST?*
+   - Fashion MNIST is a dataset containing grayscale images of fashion items like clothes, shoes, and accessories. It is often used as a benchmark in machine learning and computer vision tasks.
+
+2. *Why do we preprocess the data by scaling the pixel values?*
+   - Scaling the pixel values to be between 0 and 1 helps in normalizing the input data, making it easier for the model to learn and converge faster during training.
+
+3. *What is the purpose of convolutional layers in a CNN?*
+   - Convolutional layers extract features from input images by applying filters across the image. This helps in capturing spatial hierarchies of patterns and features.
+
+4. *Why do we use activation functions like ReLU and softmax?*
+   - ReLU introduces non-linearity in the model, allowing it to learn complex patterns. Softmax is used in the output layer for multi-class classification tasks to compute probabilities for each class.
+
+5. **How does the summary() method help in understanding the model?**
+   - The summary() method provides a concise overview of the model architecture, including the number of parameters in each layer, which helps in understanding the model's complexity and potential performance.
+
+6. *What does the visualization of Fashion MNIST images tell us?*
+   - The visualization helps in understanding the nature of the dataset by showing sample images along with their corresponding labels, providing insights into the types of fashion items present in the dataset.
+
+These questions cover the key concepts and tasks performed in the provided code. Understanding them will deepen your understanding of building and visualizing convolutional neural networks for image classification tasks.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
